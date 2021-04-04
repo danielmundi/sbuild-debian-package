@@ -22,7 +22,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 set -e
 # Create schroot
-sbuild-createchroot --arch=${arch} ${distro} \
+sudo sbuild-createchroot --arch=${arch} ${distro} \
     /srv/chroot/${distro}-${arch}-sbuild http://deb.debian.org/debian
 
 # Generate .dsc file
@@ -32,7 +32,9 @@ res=$(dpkg-source -b ./)
 dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 
 # Build inside schroot
-sbuild --arch=${arch} -c ${distro}-${arch}-sbuild \
+sudo sbuild --arch=${arch} -c ${distro}-${arch}-sbuild \
     -d ${distro} ../${dsc_file}
+
+find ../ -maxdepth 2 -name "*.deb"
 
 #OS=debian DIST=jessie ARCH=armhf pbuilder --build --pkgname-logfile --debbuildopts -B ../${dsc_file}

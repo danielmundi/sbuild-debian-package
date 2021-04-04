@@ -12,8 +12,10 @@ inputs:
     required: false
     default: amd64
 runs:
-  using: docker
-  image: Dockerfile
+  using: composite
+  steps:
+    - run: ./entrypoint.sh
+      shell: bash
   args:
     - ${{ inputs.distro }}
     - ${{ inputs.arch }}
