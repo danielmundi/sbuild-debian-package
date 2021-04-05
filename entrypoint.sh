@@ -9,12 +9,13 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
 sudo apt-get update -yqq
-sudo apt-get install -y --no-install-recommends \
+sudo apt-get install -yqq --no-install-recommends \
             devscripts \
             build-essential \
             sbuild \
             schroot \
-            debootstrap
+            debootstrap \
+            qemu-user-static
 
 # Create schroot
 sudo sbuild-createchroot --arch=${arch} ${distro} \
