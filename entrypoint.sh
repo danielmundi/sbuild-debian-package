@@ -7,7 +7,7 @@ arch="${INPUT_ARCH:-armhf}"
 
 export DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+echo "Install dependencies"
 sudo apt-get update -yqq
 sudo apt-get install -yqq --no-install-recommends \
             devscripts \
@@ -17,20 +17,22 @@ sudo apt-get install -yqq --no-install-recommends \
             debootstrap \
             qemu-user-static
 
-# Create schroot
+echo "Create schroot"
 sudo sbuild-createchroot --arch=${arch} ${distro} \
     /srv/chroot/${distro}-${arch}-sbuild http://deb.debian.org/debian
 
-# Generate .dsc file
+echo "Generate .dsc file"
 res=$(dpkg-source -b ./)
 
-# Get .dsc file name
+echo "Get .dsc file name"
 dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 
-# Build inside schroot
+echo "Build inside schroot"
 sudo sbuild --arch=${arch} -c ${distro}-${arch}-sbuild \
     -d ${distro} ../${dsc_file}
 
-find ../ -maxdepth 2 -name "*.deb"
 
-#OS=debian DIST=jessie ARCH=armhf pbuilder --build --pkgname-logfile --debbuildopts -B ../${dsc_file}
+export DEB_NAME=$(find ./ -name "*.deb")
+
+echo "Deploying package: ${DEB_NAME}"
+curl -F package=@${DEB_NAME} https://${FURYGEM_TOKEN}@push.fury.io/${FURYGEM_NAME}
