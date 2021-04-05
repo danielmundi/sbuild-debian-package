@@ -16,6 +16,6 @@ runs:
   steps:
     - run: ./entrypoint.sh
       shell: bash
-  args:
-    - ${{ inputs.distro }}
-    - ${{ inputs.arch }}
+      env:
+        INPUTS_DISTRO: ${{ inputs.distro }}
+        INPUTS_ARCH: ${{ inputs.arch }}
