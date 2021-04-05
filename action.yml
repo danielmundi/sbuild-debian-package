@@ -14,7 +14,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: ./entrypoint.sh
+    - run: ${{ github.action_path }}/entrypoint.sh
       shell: bash
       env:
         INPUTS_DISTRO: ${{ inputs.distro }}
