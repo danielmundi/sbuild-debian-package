@@ -9,7 +9,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
 sudo apt-get update -yqq
-sudo apt-get -yqq --no-install-recommends \
+sudo apt-get install -y --no-install-recommends \
             devscripts \
             build-essential \
             sbuild \
