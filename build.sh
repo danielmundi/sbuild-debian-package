@@ -30,9 +30,3 @@ dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 echo "Build inside schroot"
 sudo sbuild --arch=${arch} -c ${distro}-${arch}-sbuild \
     -d ${distro} ../${dsc_file}
-
-
-export DEB_NAME=$(find ./ -name "*.deb")
-
-echo "Deploying package: ${DEB_NAME}"
-curl -F package=@${DEB_NAME} https://${FURYGEM_TOKEN}@push.fury.io/${FURYGEM_NAME}
