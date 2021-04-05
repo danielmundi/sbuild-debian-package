@@ -1,26 +1,21 @@
 #!/bin/bash
 
+set -e
+
 distro="${INPUT_DISTRO:-buster}"
 arch="${INPUT_ARCH:-armhf}"
 
 export DEBIAN_FRONTEND=noninteractive
 
-#cd /profiler
+# Install dependencies
+sudo apt-get update -yqq
+sudo apt-get -yqq --no-install-recommends \
+            devscripts \
+            build-essential \
+            sbuild \
+            schroot \
+            debootstrap
 
-#dpkg --add-architecture ${arch}
-
-#apt-get update -yqq
-#apt-get install -yqq build-essential crossbuild-essential-${arch}
-
-#echo "Build dependencies"
-#apt-get build-dep -y -a${arch} ./
-#apt-get build-dep -y ./
-#mk-build-deps --install --host-arch ${arch} --tool='apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes debian/control
-
-#echo "Build package"
-#CONFIG_SITE=/etc/dpkg-cross/cross-config.${arch}  DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -a${arch} -Pcross,nocheck
-
-set -e
 # Create schroot
 sudo sbuild-createchroot --arch=${arch} ${distro} \
     /srv/chroot/${distro}-${arch}-sbuild http://deb.debian.org/debian
