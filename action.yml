@@ -11,10 +11,15 @@ inputs:
     description: Host architecture to build the package
     required: false
     default: amd64
+outputs:
+  deb-package:
+    description: The name of the generated Debian package
+    value: ${{ steps.generate-debian-package.outputs.deb-package }}
 runs:
   using: composite
   steps:
-    - run: ${{ github.action_path }}/build.sh
+    - id: generate-debian-package
+      run: ${{ github.action_path }}/build.sh
       shell: bash
       env:
         INPUTS_DISTRO: ${{ inputs.distro }}

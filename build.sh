@@ -30,3 +30,10 @@ dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 echo "Build inside schroot"
 sudo sbuild --arch=${arch} -c ${distro}-${arch}-sbuild \
     -d ${distro} ../${dsc_file}
+
+echo "Generated files:"
+DEB_PACKAGE=$(find ./ -name "*.deb")
+echo "Package: ${DEB_PACKAGE}"
+
+# Set output
+echo "::set-output name=deb-package::${DEB_PACKAGE}"
