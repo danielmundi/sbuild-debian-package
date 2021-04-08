@@ -17,8 +17,10 @@ sudo apt-get install -yqq --no-install-recommends \
             debootstrap \
             qemu-user-static
 
+set +e
 schroot_name="${distro}-${arch}-sbuild"
-schroot_exists=$(sudo schroot -l 2>/dev/null | grep -o "chroot:${schroot_name}")
+schroot_exists=$(sudo schroot -l | grep -o "chroot:${schroot_name}")
+set -e
 
 if [ "${schroot_exists}" = "chroot:${schroot_name}" ]; then
     echo "Create schroot"
