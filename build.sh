@@ -17,11 +17,13 @@ sudo apt-get install -yqq --no-install-recommends \
             debootstrap \
             qemu-user-static
 
-schroot_exists=$(schroot -l | grep "chroot:${distro}-${arch}-sbuild")
-if [ -z "${schroot}" ]; then
+schroot_name="${distro}-${arch}-sbuild"
+schroot_exists=$(sudo schroot -l 2>/dev/null | grep -o "chroot:${schroot_name}")
+
+if [ "${schroot_exists}" = "chroot:${schroot_name}" ]; then
     echo "Create schroot"
     sudo sbuild-createchroot --arch=${arch} ${distro} \
-        /srv/chroot/${distro}-${arch}-sbuild http://deb.debian.org/debian
+        /srv/chroot/${schroot_name} http://deb.debian.org/debian
 fi
 
 echo "Generate .dsc file"
@@ -31,7 +33,7 @@ echo "Get .dsc file name"
 dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 
 echo "Build inside schroot"
-sudo sbuild --arch=${arch} -c ${distro}-${arch}-sbuild \
+sudo sbuild --arch=${arch} -c ${schroot_name} \
     -d ${distro} ../${dsc_file}
 
 echo "Generated files:"
