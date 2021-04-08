@@ -22,7 +22,7 @@ schroot_name="${distro}-${arch}-sbuild"
 schroot_exists=$(sudo schroot -l | grep -o "chroot:${schroot_name}")
 set -e
 
-if [ "${schroot_exists}" = "chroot:${schroot_name}" ]; then
+if [ "${schroot_exists}" != "chroot:${schroot_name}" ]; then
     echo "Create schroot"
     sudo sbuild-createchroot --arch=${arch} ${distro} \
         /srv/chroot/${schroot_name} http://deb.debian.org/debian
