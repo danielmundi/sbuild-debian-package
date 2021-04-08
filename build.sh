@@ -17,9 +17,12 @@ sudo apt-get install -yqq --no-install-recommends \
             debootstrap \
             qemu-user-static
 
-echo "Create schroot"
-sudo sbuild-createchroot --arch=${arch} ${distro} \
-    /srv/chroot/${distro}-${arch}-sbuild http://deb.debian.org/debian
+schroot_exists=$(schroot -l | grep "chroot:${distro}-${arch}-sbuild")
+if [ -z "${schroot}" ]; then
+    echo "Create schroot"
+    sudo sbuild-createchroot --arch=${arch} ${distro} \
+        /srv/chroot/${distro}-${arch}-sbuild http://deb.debian.org/debian
+fi
 
 echo "Generate .dsc file"
 res=$(dpkg-source -b ./)
@@ -32,7 +35,7 @@ sudo sbuild --arch=${arch} -c ${distro}-${arch}-sbuild \
     -d ${distro} ../${dsc_file}
 
 echo "Generated files:"
-DEB_PACKAGE=$(find ./ -name "*.deb")
+DEB_PACKAGE=$(find ./ -name "*.deb" | grep -v "dbgsym")
 echo "Package: ${DEB_PACKAGE}"
 
 # Set output
