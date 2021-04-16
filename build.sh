@@ -2,8 +2,8 @@
 
 set -e
 
-distro="${INPUT_DISTRO:-buster}"
-arch="${INPUT_ARCH:-armhf}"
+distro="${INPUTS_DISTRO:-buster}"
+arch="${INPUTS_ARCH:-armhf}"
 
 export DEBIAN_FRONTEND=noninteractive
 
