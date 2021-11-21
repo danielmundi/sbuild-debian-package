@@ -50,8 +50,9 @@ int semop(int semid, struct sembuf *sops, unsigned nsops)
   return syscall(__NR_semop, semid, sops, nsops);
 }
 EOF
-  chroot "$schroot_name" gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
-  echo '/opt/libpreload-semop.so' >> "$schroot_target/etc/ld.so.preload"
+  sudo chroot "$schroot_target" gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
+  echo '/opt/libpreload-semop.so' >> "/etc/ld.so.preload"
+  exit
 fi
 # End workaround
 
