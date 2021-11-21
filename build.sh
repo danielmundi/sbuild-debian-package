@@ -32,8 +32,8 @@ fi
 # There is an issue with qemu 4.2 which casues issues when entering fakerot
 # https://github.com/osrf/multiarch-docker-image-generation/issues/36
 # a workaround:
-if [ -x "$CHROOT/usr/bin/qemu-user-static" ]; then
-  echo 'REPO-MAKE-CI: qemu-user-static build. Building semtimedop workaround'
+if [ -x "$CHROOT/usr/bin/qemu-arm-static" ]; then
+  echo 'qemu-arm-static build --- building semtimedop workaround'
   cat <<EOF > "$CHROOT/tmp/wrap_semop.c"
 #include <unistd.h>
 #include <asm/unistd.h>
