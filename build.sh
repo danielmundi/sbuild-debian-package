@@ -36,7 +36,7 @@ dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 
 echo "Build inside schroot"
 sudo sbuild --arch=${arch} -c ${schroot_name} \
-    -d ${distro} ../${dsc_file}
+    -d ${distro} ../${dsc_file} --verbose
 
 echo "Generated files:"
 DEB_PACKAGE=$(find ./ -name "*.deb" | grep -v "dbgsym")
