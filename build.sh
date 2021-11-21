@@ -2,7 +2,7 @@
 
 set -e
 
-distro="${INPUTS_DISTRO:-buster}"
+distro="${INPUTS_DISTRO:-bullseye}"
 arch="${INPUTS_ARCH:-armhf}"
 
 export DEBIAN_FRONTEND=noninteractive
