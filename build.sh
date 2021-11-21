@@ -28,6 +28,29 @@ if [ "${schroot_exists}" != "chroot:${schroot_name}" ]; then
         /srv/chroot/${schroot_name} http://deb.debian.org/debian
 fi
 
+# https://github.com/M-Reimer/repo-make/blob/master/repo-make-ci.sh#L252-L274
+# There is an issue with qemu 4.2 which casues issues when entering fakerot
+# https://github.com/osrf/multiarch-docker-image-generation/issues/36
+# a workaround:
+if [ -x "$CHROOT/usr/bin/qemu-user-static" ]; then
+  echo 'REPO-MAKE-CI: qemu-user-static build. Building semtimedop workaround'
+  cat <<EOF > "$CHROOT/tmp/wrap_semop.c"
+#include <unistd.h>
+#include <asm/unistd.h>
+#include <sys/syscall.h>
+#include <linux/sem.h>
+/* glibc 2.31 wraps semop() as a call to semtimedop() with the timespec set to NULL
+ * qemu 3.1 doesn't support semtimedop(), so this wrapper syscalls the real semop()
+ */
+int semop(int semid, struct sembuf *sops, unsigned nsops)
+{
+  return syscall(__NR_semop, semid, sops, nsops);
+}
+EOF
+  chroot "$CHROOT" gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
+  echo '/opt/libpreload-semop.so' >> "$CHROOT/etc/ld.so.preload"
+fi
+
 echo "Generate .dsc file"
 res=$(dpkg-source -b ./)
 
