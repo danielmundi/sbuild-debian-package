@@ -28,14 +28,16 @@ if [ "${schroot_exists}" != "chroot:${schroot_name}" ]; then
         /srv/chroot/${schroot_name} http://deb.debian.org/debian
 fi
 
+schroot_target="/srv/chroot/${schroot_name}"
+
 # There is an issue on Ubuntu 20.04 and qemu 4.2 when entering fakeroot
 # References:
 # https://github.com/M-Reimer/repo-make/blob/master/repo-make-ci.sh#L252-L274
 # https://github.com/osrf/multiarch-docker-image-generation/issues/36
 # Start workaround
-if [ -x "$schroot_name/usr/bin/qemu-arm-static" ]; then
+if [ -x "/usr/bin/qemu-arm-static" ]; then
   echo 'BUILD.SH CI: qemu-arm-static build --- implementing semtimedop workaround'
-  cat <<EOF > "$schroot_name/tmp/wrap_semop.c"
+  cat <<EOF > "/tmp/wrap_semop.c"
 #include <unistd.h>
 #include <asm/unistd.h>
 #include <sys/syscall.h>
@@ -49,7 +51,7 @@ int semop(int semid, struct sembuf *sops, unsigned nsops)
 }
 EOF
   chroot "$schroot_name" gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
-  echo '/opt/libpreload-semop.so' >> "$schroot_name/etc/ld.so.preload"
+  echo '/opt/libpreload-semop.so' >> "$schroot_target/etc/ld.so.preload"
 fi
 # End workaround
 
