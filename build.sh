@@ -25,7 +25,7 @@ set -e
 if [ "${schroot_exists}" != "chroot:${schroot_name}" ]; then
     echo "Create schroot"
     sudo sbuild-createchroot --arch=${arch} ${distro} \
-        /srv/chroot/${schroot_name} http://deb.debian.org/debian
+        /srv/chroot/${schroot_name} http://deb.debian.org/debian 
 fi
 
 echo "Generate .dsc file"
@@ -36,7 +36,7 @@ dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 
 echo "Build inside schroot"
 sudo sbuild --arch=${arch} -c ${schroot_name} \
-    -d ${distro} ../${dsc_file}
+    -d ${distro} ../${dsc_file} --verbose
 
 echo "Generated files:"
 DEB_PACKAGE=$(find ./ -name "*.deb" | grep -v "dbgsym")
