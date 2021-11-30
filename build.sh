@@ -35,7 +35,7 @@ schroot_target="/srv/chroot/${schroot_name}"
 # https://github.com/M-Reimer/repo-make/blob/master/repo-make-ci.sh#L252-L274
 # https://github.com/osrf/multiarch-docker-image-generation/issues/36
 # Start workaround
-if [ -f "${schroot_target}/usr/bin/qemu-arm-static" ]; then
+#if [ -f "${schroot_target}/usr/bin/qemu-arm-static" ]; then
   echo 'BUILD.SH CI: qemu-arm-static build --- implementing semtimedop workaround'
   cat <<EOF > "/tmp/wrap_semop.c"
 #include <unistd.h>
@@ -55,7 +55,7 @@ EOF
   sudo schroot --chroot "${schroot_name}" --directory / gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
   echo '/opt/libpreload-semop.so' | sudo tee -a "${schroot_target}/etc/ld.so.preload"
   exit
-fi
+#fi
 # End workaround
 
 echo "Generate .dsc file"
