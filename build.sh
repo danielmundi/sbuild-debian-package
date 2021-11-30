@@ -36,8 +36,18 @@ schroot_target="/srv/chroot/${schroot_name}"
 # https://github.com/M-Reimer/repo-make/blob/master/repo-make-ci.sh#L252-L274
 # https://github.com/osrf/multiarch-docker-image-generation/issues/36
 # Start workaround
-#if [ -f "${schroot_target}/usr/bin/qemu-arm-static" ]; then
-  echo 'BUILD.SH CI: qemu-arm-static build --- implementing semtimedop workaround'
+# If the host has qemu-arm-static installed, then copy it over to our chroot.
+if [ -x "/usr/bin/qemu-arm-static" ]; then
+  echo "SBUILD-DEBIAN-PACKAGE CI: Copying qemu-arm-static into our chroot"
+  sudo cp -a "/usr/bin/qemu-arm-static" "${schroot_target}/usr/bin"
+  if [ -x "/bin/bash-static" ]; then
+    echo "SBUILD-DEBIAN-PACKAGE CI: Copying bash-static into our chroot"
+    sudo cp -a "/bin/bash-static" "${schroot_target}/usr/bin"
+  fi
+fi
+
+if [ -f "${schroot_target}/usr/bin/qemu-arm-static" ]; then
+  echo 'SBUILD-DEBIAN-PACKAGE CI: qemu-arm-static build --- implementing semtimedop workaround'
   cat <<EOF > "/tmp/wrap_semop.c"
 #include <unistd.h>
 #include <asm/unistd.h>
@@ -53,10 +63,9 @@ int semop(int semid, struct sembuf *sops, unsigned nsops)
 EOF
 
   sudo cp "/tmp/wrap_semop.c" "${schroot_target}/tmp/wrap_semop.c"
-  sudo schroot --chroot "${schroot_name}" --directory / gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
+  sudo schroot --chroot "${schroot_name}" --directory / -- gcc -fpic -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
   echo '/opt/libpreload-semop.so' | sudo tee -a "${schroot_target}/etc/ld.so.preload"
-  exit
-#fi
+fi
 # End workaround
 
 echo "Generate .dsc file"
