@@ -40,10 +40,6 @@ schroot_target="/srv/chroot/${schroot_name}"
 if [ -x "/usr/bin/qemu-arm-static" ]; then
   echo "SBUILD-DEBIAN-PACKAGE CI: Copying qemu-arm-static into our chroot"
   sudo cp -a "/usr/bin/qemu-arm-static" "${schroot_target}/usr/bin"
-  if [ -x "/bin/bash-static" ]; then
-    echo "SBUILD-DEBIAN-PACKAGE CI: Copying bash-static into our chroot"
-    sudo cp -a "/bin/bash-static" "${schroot_target}/usr/bin"
-  fi
 fi
 
 if [ -f "${schroot_target}/usr/bin/qemu-arm-static" ]; then
@@ -63,8 +59,8 @@ int semop(int semid, struct sembuf *sops, unsigned nsops)
 EOF
 
   sudo cp "/tmp/wrap_semop.c" "${schroot_target}/tmp/wrap_semop.c"
-  sudo schroot --chroot "${schroot_name}" --directory / -- gcc -fpic -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
-  echo '/opt/libpreload-semop.so' | sudo tee -a "${schroot_target}/etc/ld.so.preload"
+  sudo schroot --chroot "${schroot_name}" --directory / -- gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
+  sudo schroot --chroot "${schroot_name}" --directory / -- echo "/opt/libpreload-semop.so" | tee -a "/etc/ld.so.preload"
 fi
 # End workaround
 
