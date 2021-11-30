@@ -60,7 +60,7 @@ EOF
 
   sudo cp "/tmp/wrap_semop.c" "${schroot_target}/tmp/wrap_semop.c"
   sudo schroot --chroot "${schroot_name}" --directory / -- gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
-  sudo schroot --chroot "${schroot_name}" --directory / -- echo "/opt/libpreload-semop.so" | tee -a "/etc/ld.so.preload"
+  sudo schroot --chroot "${schroot_name}" --directory / -- echo "/opt/libpreload-semop.so" | sudo tee -a "/etc/ld.so.preload"
 fi
 # End workaround
 
