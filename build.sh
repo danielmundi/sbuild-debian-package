@@ -15,7 +15,8 @@ sudo apt-get install -yqq --no-install-recommends \
             sbuild \
             schroot \
             debootstrap \
-            qemu-user-static
+            qemu-user-static \
+            binfmt-support
 
 set +e
 schroot_name="${distro}-${arch}-sbuild"
