@@ -23,28 +23,20 @@ schroot_name="${distro}-${arch}-sbuild"
 schroot_exists=$(sudo schroot -l | grep -o "chroot:${schroot_name}")
 set -e
 
+schroot_target="/srv/chroot/${schroot_name}"
 if [ "${schroot_exists}" != "chroot:${schroot_name}" ]; then
     echo "Create schroot"
     sudo sbuild-createchroot --arch=${arch} ${distro} \
-        /srv/chroot/${schroot_name} http://deb.debian.org/debian
+        "${schroot_target}" http://deb.debian.org/debian
 fi
-
-schroot_target="/srv/chroot/${schroot_name}"
 
 # There is an issue on Ubuntu 20.04 and qemu 4.2 when entering fakeroot
 # References:
 # https://github.com/M-Reimer/repo-make/blob/master/repo-make-ci.sh#L252-L274
 # https://github.com/osrf/multiarch-docker-image-generation/issues/36
 # Start workaround
-# If the host has qemu-arm-static installed, then copy it over to our chroot.
-if [ -x "/usr/bin/qemu-arm-static" ]; then
-  echo "SBUILD-DEBIAN-PACKAGE CI: Copying qemu-arm-static into our chroot"
-  sudo cp -a "/usr/bin/qemu-arm-static" "${schroot_target}/usr/bin"
-fi
-
-if [ -f "${schroot_target}/usr/bin/qemu-arm-static" ]; then
-  echo 'SBUILD-DEBIAN-PACKAGE CI: qemu-arm-static build --- implementing semtimedop workaround'
-  cat <<EOF > "/tmp/wrap_semop.c"
+echo 'BUILD.SH CI: qemu-arm-static build --- implementing semtimedop workaround'
+cat <<EOF > "/tmp/wrap_semop.c"
 #include <unistd.h>
 #include <asm/unistd.h>
 #include <sys/syscall.h>
@@ -58,10 +50,15 @@ int semop(int semid, struct sembuf *sops, unsigned nsops)
 }
 EOF
 
-  sudo cp "/tmp/wrap_semop.c" "${schroot_target}/tmp/wrap_semop.c"
-  sudo schroot --chroot "${schroot_name}" --directory / -- gcc -fPIC -shared -o /opt/libpreload-semop.so /tmp/wrap_semop.c
-  sudo schroot --chroot "${schroot_name}" --directory / -- echo "/opt/libpreload-semop.so" | sudo tee -a "/etc/ld.so.preload"
-fi
+cat <<EOF > "/tmp/pre-build.sh"
+#!/bin/bash
+gcc -fPIC -shared -Q -o /opt/libpreload-semop.so /tmp/wrap_semop.c
+chmod 777 /opt/libpreload-semop.so
+echo '/opt/libpreload-semop.so' >> /etc/ld.so.preload
+EOF
+
+sudo cp "/tmp/wrap_semop.c" "${schroot_target}/tmp/wrap_semop.c"
+sudo cp "/tmp/pre-build.sh" "${schroot_target}/tmp/pre-build.sh"
 # End workaround
 
 echo "Generate .dsc file"
@@ -72,6 +69,7 @@ dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 
 echo "Build inside schroot"
 sudo sbuild --arch=${arch} -c ${schroot_name} \
+    --chroot-setup-commands="chmod +x /tmp/pre-build.sh; /tmp/pre-build.sh" \
     -d ${distro} ../${dsc_file} --verbose
 
 echo "Generated files:"
