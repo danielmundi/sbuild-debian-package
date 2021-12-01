@@ -14,8 +14,7 @@ sudo apt-get install -yqq --no-install-recommends \
             build-essential \
             sbuild \
             schroot \
-            debootstrap \
-            binfmt-support
+            debootstrap
 
 # Hacky install of qemu-user-static from bullseye-backports if we're doing a build for bullseye/arm64
 # Ref: https://www.mail-archive.com/ubuntu-bugs@lists.ubuntu.com/msg5979049.html
@@ -25,7 +24,8 @@ if [ "${distro}" == "bullseye" ] && [ "${arch}" == "arm64" ]; then
     sudo apt-get update -yqq
     sudo apt-get install -yqq --no-install-recommends qemu-user-static -t bullseye-backports
 else
-    sudo apt-get install -yqq --no-install-recommends qemu-user-static
+    sudo apt-get install -yqq --no-install-recommends qemu-user-static \
+            binfmt-support
 fi
 
 
