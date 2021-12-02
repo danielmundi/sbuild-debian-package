@@ -72,6 +72,9 @@ sudo cp "/tmp/wrap_semop.c" "${schroot_target}/tmp/wrap_semop.c"
 sudo cp "/tmp/pre-build.sh" "${schroot_target}/tmp/pre-build.sh"
 # End workaround
 
+# More workaround for qemu >5.2
+sudo mkdir -p "${schroot_target}"/usr/libexec/qemu-binfmt
+
 echo "Generate .dsc file"
 res=$(dpkg-source -b ./)
 
