@@ -6,7 +6,7 @@ inputs:
   distro:
     description: Which Debian distribution to use
     required: false
-    default: buster
+    default: bullseye
   arch:
     description: Host architecture to build the package
     required: false
