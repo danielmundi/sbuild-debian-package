@@ -98,4 +98,6 @@ DEB_PACKAGE=$(find ./ -name "*.deb" | grep -v "dbgsym")
 echo "Package: ${DEB_PACKAGE}"
 
 # Set output
-echo "::set-output name=deb-package::${DEB_PACKAGE}"
+# https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+# echo "::set-output name=deb-package::${DEB_PACKAGE}"
+echo "deb-package=${DEB_PACKAGE}" >> $GITHUB_OUTPUT
