@@ -4,6 +4,13 @@ set -e
 
 distro="${INPUTS_DISTRO:-bullseye}"
 arch="${INPUTS_ARCH:-armhf}"
+run_lintian="${INPUTS_RUN_LINTIAN:-true}"
+
+if [ "${run_lintian}" == "true" ]; then
+    run_lintian="--run-lintian"
+else
+    run_lintian="--no-run-lintian"
+fi
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -82,7 +89,7 @@ echo "Get .dsc file name"
 dsc_file=$(echo "$res" | grep .dsc | grep -o '[^ ]*$')
 
 echo "Build inside schroot"
-sudo sbuild --arch=${arch} -c ${schroot_name} \
+sudo sbuild --arch=${arch} -c ${schroot_name} ${run_lintian} \
     --chroot-setup-commands="chmod +x /tmp/pre-build.sh; /tmp/pre-build.sh" \
     -d ${distro} ../${dsc_file} --verbose
 
@@ -91,4 +98,6 @@ DEB_PACKAGE=$(find ./ -name "*.deb" | grep -v "dbgsym")
 echo "Package: ${DEB_PACKAGE}"
 
 # Set output
-echo "::set-output name=deb-package::${DEB_PACKAGE}"
+# https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+# echo "::set-output name=deb-package::${DEB_PACKAGE}"
+echo "deb-package=${DEB_PACKAGE}" >> $GITHUB_OUTPUT
